@@ -183,7 +183,7 @@ Differentiate high-volume customers from high-cost customers to improve commerci
 - **18_kpi_dashboard_queries.sql**
 - **19_data_dictionary.sql**
 
-# Database_Setup
+**01_database_setup.sql**
 ```
 DROP DATABASE IF EXISTS SwiftRoutelog;
 
