@@ -576,32 +576,78 @@ Initial database exploration
 ```
 SELECT * 
 FROM customers;
+```
+<img width="653" height="216" alt="image" src="https://github.com/user-attachments/assets/dc42f3a4-b5f9-4abf-b79c-a5eded1eb681" />
 
+
+```
 SELECT * 
 FROM carriers;
+```
+<img width="538" height="134" alt="image" src="https://github.com/user-attachments/assets/6097a590-2557-46ad-86ec-0a8a4d2ce429" />
 
+```
 SELECT * 
 FROM vehicles;
+```
+<img width="598" height="221" alt="image" src="https://github.com/user-attachments/assets/754ebca0-b2b8-4378-8203-46446fec08df" />
 
+
+```
 SELECT * 
 FROM routes;
+```
+<img width="592" height="223" alt="image" src="https://github.com/user-attachments/assets/685781e2-f117-4b02-aad3-80392fb89d11" />
 
+
+```
 SELECT * 
 FROM shipments;
+```
+<img width="993" height="214" alt="image" src="https://github.com/user-attachments/assets/bc01a572-d307-4abb-9a7d-bf854c1d04a8" />
 
+```
 SELECT * 
 FROM transportation_costs;
+```
+<img width="754" height="218" alt="image" src="https://github.com/user-attachments/assets/b1570910-f546-4e39-8f8c-f344f5e6ae96" />
 
+
+```
 SELECT * 
 FROM delivery_events;
+```
+<img width="547" height="224" alt="image" src="https://github.com/user-attachments/assets/e90d18cc-1af0-47b3-98af-1e56d1f61c7d" />
 
--- Unique shipment statuses
+#### Unique shipment statuses
 
+``
 SELECT DISTINCT Shipment_Status
 FROM shipments;
+```
+<img width="363" height="140" alt="image" src="https://github.com/user-attachments/assets/ef99d550-08f3-4115-95cf-185b42ae3224" />
 
--- Unique vehicle types
-
+#### Unique vehicle types
+```
 SELECT DISTINCT Vehicle_Type
 FROM vehicles;
 ```
+<img width="370" height="140" alt="image" src="https://github.com/user-attachments/assets/3b33ebdf-f12b-4308-866e-3d2a90535695" />
+
+**07_aggregate_analysis.sql**
+DESCRIPTION:
+Aggregate transportation metrics
+
+### Shipment volume by carrier
+```
+SELECT
+s.Carrier_ID, c.Carrier_Name,
+COUNT(*) AS Shipment_Count
+FROM shipments s
+LEFT JOIN carriers c
+ON s.Carrier_ID = c.Carrier_ID
+GROUP BY Carrier_ID
+ORDER BY Shipment_Count DESC;
+```
+
+
