@@ -15,7 +15,7 @@ As transportation data becomes distributed across Transportation Management Syst
 - Transportation delays
 
 
-# Business Problem
+## Business Problem
 
 Fragmented transportation data limits the organization's ability to:
 
@@ -28,7 +28,7 @@ Fragmented transportation data limits the organization's ability to:
 
 The objective of this project is to build a relational database and perform advanced SQL analysis to uncover operational inefficiencies and cost-saving opportunities.
 
-# Database Architecture
+## Database Architecture
 
 The solution was designed using a normalized relational database structure consisting of seven core entities:
 
@@ -42,7 +42,7 @@ The solution was designed using a normalized relational database structure consi
 | 6   | Transportation Costs  | Contains shipment-level transportation cost components.                         |
 | 7   | Delivery Events       | Records transportation issues and delivery-related events.                      |
 
-# SQL Skills Demonstrated
+## SQL Skills Demonstrated
 This project showcases:
 - Database Design
 - Relational Modeling
@@ -63,78 +63,72 @@ This project showcases:
 
 # Key Business Questions Answered
 
-# Carrier Analysis
+## Carrier Analysis
 - Which carriers handle the highest shipment volumes?
 - Which carriers generate the highest transportation costs?
 - Which carriers experience the highest delay rates?
 
-# Route Analysis
+## Route Analysis
 - Which transportation lanes experience recurring delays?
 - Which routes generate unusually high costs per kilometer?
 
-# Customer Analysis
+## Customer Analysis
 - Which customers drive the highest logistics spending?
 - Which customers have the highest average transportation cost?
 
-# Delivery Performance
+## Delivery Performance
 - What percentage of shipments are delivered on time?
 - What are the most common causes of transportation delays?
 
-# Cost Analysis
+## Cost Analysis
 - How has transportation spending evolved over time?
 - Where should management focus cost-reduction initiatives?
 
 # Key Findings
 
-# Carrier Performance
+## Carrier Performance
 - CR001 (FedEx) achieved the strongest delivery performance.
 - CR005 (Evri) recorded the lowest on-time delivery percentage.
 - Shipment allocation is not aligned with carrier performance.
 
-# Transportation Delays
+## Transportation Delays
 - Traffic delays were identified as the leading contributor to late deliveries.
 - Several London-bound routes exhibited recurring delivery issues.
 - Certain lanes demonstrated significantly higher delay rates than others.
 
-# Logistics Costs
+## Logistics Costs
 - Driver costs and fuel costs were the largest contributors to total transportation spending.
 - Several routes generated disproportionately high transportation costs relative to distance travelled.
 
-# Customer Spending
+## Customer Spending
 - Gap, Timberland, and Ralph Lauren generated the highest total transportation spend.
 - Versace demonstrated the highest average spend per shipment.
 
-# Shipment Outcomes
+## Shipment Outcomes
 - 60% of shipments were successfully delivered.
 - 20% of shipments were cancelled.
 - Cancellation rates warrant further investigation due to potential operational and customer-service impacts.
 
-# Business Recommendations
-1. Reallocate Carrier Volume
-
+## Business Recommendations
+### 1. Reallocate Carrier Volume
 Increase shipment allocation to high-performing carriers such as CR001 while reviewing underperforming providers.
 
-2. Improve Route Planning
-
+### 2. Improve Route Planning
 Investigate recurring delays on London-bound lanes and redesign transportation schedules where necessary.
 
-3. Reduce Traffic-Driven Delays
-
+### 3. Reduce Traffic-Driven Delays
 Implement route optimization and dynamic departure planning to reduce traffic-related transportation disruptions.
 
-4. Establish Cost Governance
-
+### 4. Establish Cost Governance
 Monitor fuel and driver costs through recurring transportation cost scorecards.
 
-5. Investigate Shipment Cancellations
-
+### 5. Investigate Shipment Cancellations
 Perform root-cause analysis on cancelled shipments to uncover operational failures and customer-impacting issues.
 
-6. Build Customer Profitability Analytics
-
+### 6. Build Customer Profitability Analytics
 Differentiate high-volume customers from high-cost customers to improve commercial decision-making.
 
-# Future Enhancements
+## Future Enhancements
 - Logistics KPI Dashboard (Power BI)
 - Vehicle Utilization Monitoring
 - Cost-per-Kilometer Optimization
@@ -143,7 +137,7 @@ Differentiate high-volume customers from high-cost customers to improve commerci
 - Automated Carrier Scorecards
 - Route Optimization Engine
 
-# Tools Used
+## Tools Used
 - MySQL
 - SQL
 - Relational Database Design
