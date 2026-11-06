@@ -137,10 +137,13 @@ Implement route optimization and dynamic departure planning to reduce traffic-re
 ### 4. Establish Cost Governance
 Monitor fuel and driver costs through recurring transportation cost scorecards.
 
-### 5. Investigate Shipment Cancellations
+### 5. Prioritize Route Efficiency and Driver Productivity to Capture the Largest Logistics Savings
+Optimize routes, cut empty miles, improve driver utilization, and fix delay-prone lanes to reduce fuel and labor costs, which together make up nearly 72% of logistics spend.
+
+### 6. Investigate Shipment Cancellations
 Perform root-cause analysis on cancelled shipments to uncover operational failures and customer-impacting issues.
 
-### 6. Build Customer Profitability Analytics
+### 7. Build Customer Profitability Analytics
 Differentiate high-volume customers from high-cost customers to improve commercial decision-making.
 
 ## Future Enhancements
