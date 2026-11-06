@@ -159,27 +159,26 @@ Differentiate high-volume customers from high-cost customers to improve commerci
 - PowerPoint
 - Business Intelligence & Analytics
 
-SQL Scripts/
-│
-├── 01_database_setup.sql
-├── 02_table_creation.sql
-├── 03_constraints_keys.sql
-├── 04_data_population.sql
-├── 05_data_cleaning.sql
-├── 06_exploratory_analysis.sql
-├── 07_aggregate_analysis.sql
-├── 08_join_analysis.sql
-├── 09_delivery_performance.sql
-├── 10_cte_subqueries.sql
-├── 11_window_functions.sql
-├── 12_business_questions.sql
-├── 13_data_modification.sql
-├── 14_views_kpis.sql
-├── 15_stored_procedures.sql
-├── 16_indexes.sql
-├── 17_triggers.sql
-├── 18_kpi_dashboard_queries.sql
-└── 19_data_dictionary.sql
+# SQL Scripts
+- **01_database_setup.sql**
+- **02_table_creation.sql**
+- **03_constraints_keys.sql**
+- **04_data_population.sql**
+- **05_data_cleaning.sql**
+- **06_exploratory_analysis.sql**
+- **07_aggregate_analysis.sql**
+- **08_join_analysis.sql**
+- **09_delivery_performance.sql**
+- **10_cte_subqueries.sql**
+- **11_window_functions.sql**
+- **12_business_questions.sql**
+- **13_data_modification.sql**
+- **14_views_kpis.sql**
+- **15_stored_procedures.sql**
+- **16_indexes.sql**
+- **17_triggers.sql**
+- **18_kpi_dashboard_queries.sql**
+- **19_data_dictionary.sql**
 
 # Database_Setup
 ```
