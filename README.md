@@ -42,6 +42,21 @@ The solution was designed using a normalized relational database structure consi
 | 6   | Transportation Costs  | Contains shipment-level transportation cost components.                         |
 | 7   | Delivery Events       | Records transportation issues and delivery-related events.                      |
 
+# Project Highlights
+This project demonstrates end-to-end SQL analytics capabilities including:
+- Relational Database Design
+- Data Modelling
+- Data Cleaning & Data Quality Validation
+- Complex SQL Joins
+- Aggregate Calculations
+- Business KPI Development
+- Subqueries & CTEs
+- Window Functions
+- Transportation Cost Analysis
+- Carrier Performance Analysis
+- Logistics Optimization
+- Executive-Level Business Recommendations
+
 ## SQL Skills Demonstrated
 This project showcases:
 - Database Design
@@ -143,6 +158,18 @@ Differentiate high-volume customers from high-cost customers to improve commerci
 - Relational Database Design
 - PowerPoint
 - Business Intelligence & Analytics
+
+# Database_Setup
+```
+DROP DATABASE IF EXISTS SwiftRoutelog;
+
+CREATE DATABASE SwiftRoutelog;
+
+USE SwiftRoutelog;
+```
+
+
+
 
 
 
