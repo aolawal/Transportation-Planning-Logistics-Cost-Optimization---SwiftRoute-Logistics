@@ -620,8 +620,7 @@ FROM delivery_events;
 <img width="547" height="224" alt="image" src="https://github.com/user-attachments/assets/e90d18cc-1af0-47b3-98af-1e56d1f61c7d" />
 
 #### Unique shipment statuses
-
-``
+```
 SELECT DISTINCT Shipment_Status
 FROM shipments;
 ```
@@ -635,6 +634,7 @@ FROM vehicles;
 <img width="370" height="140" alt="image" src="https://github.com/user-attachments/assets/3b33ebdf-f12b-4308-866e-3d2a90535695" />
 
 **07_aggregate_analysis.sql**
+
 DESCRIPTION:
 Aggregate transportation metrics
 
