@@ -300,8 +300,9 @@ Notes VARCHAR(255)
 
  **03_constraints_keys.sql**
 
-DESCRIPTION:
-Adding foreign keys and business validation rules
+### DESCRIPTION:
+
+#### Adding foreign keys and business validation rules
 
 ```
 ALTER TABLE vehicles
@@ -346,8 +347,10 @@ CHECK (Rating BETWEEN 1 AND 5);
 
 
 **04_data_population.sql**
-DESCRIPTION:
-Loads sample operational datasets
+
+### DESCRIPTION:
+
+#### Loads sample operational datasets
 
 ### Loading records in the Customers Table
 
@@ -395,7 +398,9 @@ VALUES
 ```
 
 #### Updating the Vehicles records
+
 TRIM() removes leading and trailing spaces from a text value.
+
 ```
 UPDATE vehicles
 SET Vehicle_Status = TRIM(Vehicle_Status)
@@ -404,6 +409,7 @@ WHERE Vehicle_Status = 'In Transit ';
 
 
 ### Loading records in the Routes Table
+
 ```
 INSERT INTO routes (Route_ID, Origin, Destination, Distance_Km, Estimated_Duration_Hours, Standard_Cost)
 VALUES
@@ -477,6 +483,7 @@ VALUES
 ```
 
 ### Loading records in the Transportation_Costs Table
+
 ```
 INSERT INTO transportation_costs (Cost_ID, Shipment_ID, Fuel_Cost, Driver_Cost, Toll_Cost, Carrier_Fee, Maintenance_Cost,
  Other_Cost, Total_Transport_Cost)
@@ -534,6 +541,7 @@ VALUES
 ```
 
 ### Loading records in the Delivery_Events Table
+
 ```
 INSERT INTO delivery_events (Event_ID, Shipment_ID, Event_Type, Event_Date, Location, Notes)
 VALUES
@@ -572,8 +580,8 @@ VALUES
 
 # 05_Data_Cleaning
 
-DESCRIPTION:
-Initial database exploration
+### DESCRIPTION:
+#### Initial database exploration
 
 ```
 SELECT * 
@@ -622,6 +630,7 @@ FROM delivery_events;
 <img width="547" height="224" alt="image" src="https://github.com/user-attachments/assets/e90d18cc-1af0-47b3-98af-1e56d1f61c7d" />
 
 #### Unique shipment statuses
+
 ```
 SELECT DISTINCT Shipment_Status
 FROM shipments;
@@ -629,6 +638,7 @@ FROM shipments;
 <img width="363" height="140" alt="image" src="https://github.com/user-attachments/assets/ef99d550-08f3-4115-95cf-185b42ae3224" />
 
 #### Unique vehicle types
+
 ```
 SELECT DISTINCT Vehicle_Type
 FROM vehicles;
@@ -637,10 +647,12 @@ FROM vehicles;
 
 **07_aggregate_analysis.sql**
 
-DESCRIPTION:
-Aggregate transportation metrics
+### DESCRIPTION:
 
-### Shipment volume by carrier
+### Aggregate transportation metrics
+
+#### Shipment volume by carrier
+
 ```
 SELECT
 s.Carrier_ID, c.Carrier_Name,
@@ -655,6 +667,7 @@ ORDER BY Shipment_Count DESC;
 
 
 ### Transportation spend summary
+
 ```
 SELECT
 SUM(Total_Transport_Cost) AS Total_Logistics_Expenditure,
@@ -667,8 +680,10 @@ FROM transportation_costs;
 
 
 **08_join_analysis.sql**
-DESCRIPTION:
-Cross-table business reporting
+
+### DESCRIPTION:
+
+#### Cross-table business reporting
 
 ```
 SELECT
@@ -693,8 +708,8 @@ ON s.Route_ID = r.Route_ID;
 
 **09_delivery_performance.sql**
 
-DESCRIPTION:
-Delivery KPI calculations
+### DESCRIPTION:
+#### Delivery KPI calculations
 
 ```
 WITH Delivery_Status AS
@@ -725,12 +740,13 @@ GROUP BY Carrier_ID;
 
 
 **10_cte_subqueries.sql**
-DESCRIPTION:
-Advanced SQL using subqueries and CTEs
+
+### DESCRIPTION:
+#### Advanced SQL using subqueries and CTEs
+
+## Above average shipment cost
 
 ```
-# Above average shipment cost
-
 SELECT *
 FROM transportation_costs
 WHERE Total_Transport_Cost >
@@ -741,10 +757,9 @@ WHERE Total_Transport_Cost >
 ```
 <img width="752" height="376" alt="image" src="https://github.com/user-attachments/assets/02ba7724-21ad-4fd1-9c93-851d7945b393" />
 
+ ## High-cost routes
 
 ```
--- High-cost routes
-
 WITH Route_Costs AS
 (
     SELECT
@@ -764,11 +779,13 @@ FROM Route_Costs;
 
 
  **11_window_functions.sql**
-DESCRIPTION:
-Ranking and cumulative analysis
-```
--- Carrier ranking
 
+## DESCRIPTION:
+
+### Ranking and cumulative analysis
+
+## Carrier Ranking
+```
 SELECT
     s.Carrier_ID,
 	c.Carrier_Name,
@@ -786,9 +803,9 @@ GROUP BY s.Carrier_ID;
 ```
 <img width="374" height="143" alt="image" src="https://github.com/user-attachments/assets/b8d7059d-6908-4065-8bca-a99b31f2527a" />
 
-```
--- Running transportation spend
+## Running transportation spend
 
+```
 SELECT
     Shipment_Date,
     SUM(Total_Transport_Cost)
@@ -806,17 +823,19 @@ ON s.Shipment_ID = t.Shipment_ID;
 **12_business_questions.sql**
 
 ## DESCRIPTION:
+
 ## Executive-level business analysis
 
--- Which carrier handles most shipments?
--- Highest transportation spend?
--- Most delayed carrier?
--- Most delayed route?
--- Highest spending customers?
--- Transportation spend trend?
--- Cost reduction opportunities?
+- Which carrier handles most shipments?
+- Highest transportation spend?
+- Most delayed carrier?
+- Most delayed route?
+- Highest spending customers?
+- Transportation spend trend?
+- Cost reduction opportunities?
 
 ### 1.	Which carriers handle the most shipments?
+
 ```
 SELECT s.Carrier_ID, 
 c.Carrier_Name, 
@@ -830,6 +849,7 @@ ORDER BY COUNT(Shipment_ID) DESC;
 <img width="374" height="131" alt="image" src="https://github.com/user-attachments/assets/1915faf4-52fc-4b3f-8a90-a1e9d7930deb" />
 
 ### 2.	Which carriers generate the highest transportation costs?
+
 ```
 SELECT c.Carrier_ID,
 c.Carrier_Name, 
@@ -844,8 +864,11 @@ ORDER BY Total_Transport_Cost DESC;
 ```
 <img width="355" height="141" alt="image" src="https://github.com/user-attachments/assets/23feb600-e573-4887-ad6f-1fa744e6ffc4" />
 
+
 ### 3.	Which carriers have the highest number of delayed shipments?
--- N.B: Delayed shipment with Null Actual Delivery Date included i.e. not yet delivered shipment)
+
+#### Note: Delayed shipment with Null Actual Delivery Date will be included i.e. shipment not yet delivered)
+
 ```
 SELECT s.Carrier_ID, 
 c.Carrier_Name,
@@ -864,6 +887,7 @@ ORDER BY COUNT(*) DESC;
 <img width="383" height="136" alt="image" src="https://github.com/user-attachments/assets/7f1ebfdc-d910-460f-9f40-d6a0fe1fb5d6" />
 
 ### 4. Which routes experience recurring delivery delays?
+
 ```
 SELECT 
 r.Route_ID, 
@@ -881,6 +905,7 @@ ORDER BY Delayed_Shipments DESC;
 <img width="376" height="192" alt="image" src="https://github.com/user-attachments/assets/8eda07e3-3a32-4814-aedd-4137c3ecd80e" />
 
 ### 5. Which routes have unusually high costs per kilometer?
+
 ```
 SELECT r.Origin, r.Destination, r.Distance_Km,
 SUM(t.Total_Transport_Cost) AS Total_Cost,
@@ -895,13 +920,13 @@ ON t.Shipment_ID = s.Shipment_ID
 GROUP BY r.Origin, r.Destination, r.Distance_KM
 ORDER BY Cost_Per_KM DESC;
 ```
-
 <img width="428" height="241" alt="image" src="https://github.com/user-attachments/assets/252420c5-19d5-4904-9d82-29f2dd20569c" />
 
 
 ### -- 6. Which customers generate the highest logistics spending?
 
 #### Total Logistics Spending
+
 ```
 SELECT c.Customer_ID, c.Customer_Name, SUM(t.Total_Transport_Cost) High_Logistics_Spending
 FROM customers c
@@ -915,6 +940,7 @@ ORDER BY SUM(t.Total_Transport_Cost) DESC;
 <img width="379" height="265" alt="image" src="https://github.com/user-attachments/assets/b80a30a3-9b73-4ada-9ecb-9f424c867fe1" />
 
 #### Average Logistics Spending
+
 ```
 SELECT c.Customer_ID, c.Customer_Name, ROUND(AVG(t.Total_Transport_Cost),2) AVG_Logistics_Spending
 FROM customers c
@@ -928,8 +954,9 @@ ORDER BY AVG(t.Total_Transport_Cost) DESC;
 <img width="368" height="259" alt="image" src="https://github.com/user-attachments/assets/5e84d145-be51-4a3a-ad9e-bdd0a0725b36" />
 
 ### 7.	What are the most common causes of transportation delays? 
--- (some issues were multiple under event type but didn't result in delay)
--- e.g vehicle breakdown more than ONCE but only 1 resulted in delayed shipment
+
+*Note: Some issues were multiple under event type but didn't result in delay e.g vehicle breakdown more than ONCE but only 1 resulted in delayed shipment*
+
 ```
 SELECT d.Event_Type, COUNT(d.Event_Type) Count_of_Delays
 FROM delivery_events d
@@ -943,12 +970,12 @@ AND s.Shipment_Status = 'Delayed')
 GROUP BY d.Event_Type
 ORDER BY COUNT(d.Event_Type) DESC;
 ```
-
 <img width="369" height="139" alt="image" src="https://github.com/user-attachments/assets/2f2620b7-43fe-4e70-b9b0-718c87c2875f" />
 
 ### 8.	How has transportation spending changed over time?
 
 #### Overall % change in Total Expenditure over the period
+
 ```
 WITH Expenditure AS (
     SELECT
@@ -973,6 +1000,7 @@ ORDER BY Shipment_Date;
 <img width="517" height="265" alt="image" src="https://github.com/user-attachments/assets/2c57ff92-a384-4420-b8b6-464c50469f92" />
 
 #### % in Expenditure over the period by Customer_ID
+
 ```
 WITH Expenditure AS (
     SELECT
@@ -1025,6 +1053,7 @@ FROM transportation_costs;
 <img width="893" height="272" alt="image" src="https://github.com/user-attachments/assets/3733ec33-bad2-4b8d-83df-887d0c90781d" />
 
 #### Analysis of Total Transport Cost in Percentage 
+
 ```
 SELECT
     ROUND(AVG(Fuel_Cost * 100.0 / NULLIF(Total_Transport_Cost, 0)), 2) AS Avg_Fuel_Percent,
@@ -1036,9 +1065,11 @@ SELECT
 FROM transportation_costs;
 ```
 
+# 13_data_modification
 
-DESCRIPTION:
-INSERT, UPDATE, DELETE examples
+# DESCRIPTION:
+
+## INSERT, UPDATE, DELETE examples
 
 #### INSERT
 
@@ -1054,7 +1085,8 @@ VALUES
 'Spain'
 );
 ```
--- Crosschecking and confirming if records were actually inserted by SQL engine
+
+### Crosschecking and confirming if records were actually inserted by SQL engine
 
 ```
 SELECT *
@@ -1075,30 +1107,30 @@ DELETE FROM customers
 WHERE Customer_ID = 11;
 ```
 
-/*
-IMPORTANT
+## IMPORTANT
 
-Always use WHERE clauses
-when executing UPDATE and DELETE statements.
+#### Always use WHERE clauses when executing UPDATE and DELETE statements.
 
-Failure to do so may modify or delete
-every record in the table.
-*/
+#### Failure to do so may modify or delete every record in the table.
 
--- Crosschecking and confirming if the record was actually deleted by SQL engine
+
+### Crosschecking and confirming if the record was actually deleted by SQL engine
 
 ```
 SELECT *
 FROM customers;
 ```
-
 <img width="630" height="240" alt="image" src="https://github.com/user-attachments/assets/a0fd30c7-6262-4452-b965-126fd1eb8ef3" />
 
 
 
 **14_views_kpis.sql**
-DESCRIPTION:
-Reusable analytics views
+
+# DESCRIPTION:
+
+## Reusable analytics views
+
+### vw_carrier_performance
 
 ```
 CREATE VIEW vw_carrier_performance AS
@@ -1109,6 +1141,8 @@ FROM shipments
 GROUP BY Carrier_ID;
 ```
 <img width="587" height="154" alt="image" src="https://github.com/user-attachments/assets/a00d838c-8727-4997-93a7-a9cd52380d33" />
+
+### vw_customer_spending
 
 ```
 CREATE VIEW vw_customer_spending AS
@@ -1126,6 +1160,8 @@ GROUP BY
     c.Customer_Name;
 ```
 <img width="592" height="236" alt="image" src="https://github.com/user-attachments/assets/a956e99d-49f5-491c-ba25-430c29388567" />
+
+### vw_route_cost_analysis
 
 ```
 CREATE VIEW vw_route_cost_analysis AS
@@ -1149,15 +1185,18 @@ GROUP BY
 
  **15_stored_procedures.sql**
  
-DESCRIPTION:
-Reusable business procedures for reporting and operational management.
+## DESCRIPTION:
+
+### Reusable business procedures for reporting and operational management.
 
 ## Procedure 1: Get Carrier Performance
+
 ### PROCEDURE:
+
 ### sp_carrier_performance
 
 ### PURPOSE:
-Returns shipment volume, delayed shipments and on-time delivery percentage by carrier.
+*Returns shipment volume, delayed shipments and on-time delivery percentage by carrier.*
 
 ```
 DELIMITER $$
@@ -1213,7 +1252,9 @@ CALL sp_carrier_performance();
 <img width="578" height="166" alt="image" src="https://github.com/user-attachments/assets/0a718617-4bea-4876-93b2-5642a638f45e" />
 
 ## Procedure 2: Customer Logistics Spend
+
 ### PROCEDURE:
+
 ### sp_customer_spend
 
 DELIMITER $$
@@ -1262,25 +1303,24 @@ CALL sp_customer_spend();
 ```
 <img width="584" height="218" alt="image" src="https://github.com/user-attachments/assets/61f19998-f2e6-48a4-839e-9c3d1da9e855" />
 
+
 ## Procedure 3: Route Cost Analysis
 
 ### PROCEDURE:
+
 ### sp_route_cost_analysis
 
+```
 DELIMITER $$
 
-```
 CREATE PROCEDURE sp_route_cost_analysis()
 BEGIN
 
 SELECT
-
     r.Route_ID,
     r.Origin,
     r.Destination,
-
     COUNT(s.Shipment_ID) AS Shipment_Count,
-
     ROUND(
         AVG(t.Total_Transport_Cost),
         2
@@ -1292,10 +1332,8 @@ SELECT
     ) AS Total_Route_Cost
 
 FROM routes r
-
 LEFT JOIN shipments s
     ON r.Route_ID=s.Route_ID
-
 LEFT JOIN transportation_costs t
     ON s.Shipment_ID=t.Shipment_ID
 
@@ -1317,8 +1355,10 @@ CALL sp_route_cost_analysis();
 
 
 ## Procedure 4: Delayed Shipments
-PROCEDURE:
-sp_delayed_shipments
+
+## PROCEDURE:
+
+### sp_delayed_shipments
 
 ```
 DELIMITER $$
@@ -1327,25 +1367,18 @@ CREATE PROCEDURE sp_delayed_shipments()
 BEGIN
 
 SELECT *
-
 FROM shipments
-
 WHERE
 
 (
 Actual_Delivery_Date > Expected_Delivery_Date
-
 OR
-
 (
 Actual_Delivery_Date IS NULL
 AND Shipment_Status='Delayed'
 )
-
 );
-
 END$$
-
 DELIMITER ;
 
 CALL sp_delayed_shipments();
@@ -1355,10 +1388,12 @@ CALL sp_delayed_shipments();
 ## Procedure 5: Shipment Lookup
 
 ### PROCEDURE:
+
 ### sp_shipment_lookup
 
-PURPOSE:
-Returns a complete shipment report for a given shipment ID.
+###  PURPOSE:
+
+#### Returns a complete shipment report for a given shipment ID.
 
 ```
 DELIMITER $$
@@ -1384,16 +1419,12 @@ SELECT
     s.Shipment_Status
 
 FROM shipments s
-
 JOIN customers c
 ON s.Customer_ID=c.Customer_ID
-
 JOIN carriers ca
 ON s.Carrier_ID=ca.Carrier_ID
-
 JOIN vehicles v
 ON s.Vehicle_ID=v.Vehicle_ID
-
 JOIN routes r
 ON s.Route_ID=r.Route_ID
 
@@ -1409,6 +1440,7 @@ CALL sp_shipment_lookup('S025');
 
 
 ## Procedure 6: Top Spending Customers
+
 ### Parameterized procedure
 
 ```
@@ -1422,7 +1454,6 @@ IN p_top_n INT
 BEGIN
 
 SELECT
-
     c.Customer_ID,
     c.Customer_Name,
 
@@ -1432,10 +1463,8 @@ SELECT
     ) AS Total_Spend
 
 FROM customers c
-
 JOIN shipments s
 ON c.Customer_ID=s.Customer_ID
-
 JOIN transportation_costs t
 ON s.Shipment_ID=t.Shipment_ID
 
@@ -1460,6 +1489,7 @@ CALL sp_top_customers(5);
 ## Procedure 7: Carrier Spend Analysis
 
 ### PROCEDURE:
+
 ### sp_carrier_cost_analysis
 
 ```
@@ -1472,24 +1502,18 @@ SELECT
 
     c.Carrier_ID,
     c.Carrier_Name,
-
     COUNT(s.Shipment_ID) AS Shipment_Count,
-
     ROUND(
         SUM(t.Total_Transport_Cost),
         2
     ) AS Total_Spend,
-
     ROUND(
         AVG(t.Total_Transport_Cost),
         2
     ) AS Avg_Spend
-
 FROM carriers c
-
 LEFT JOIN shipments s
     ON c.Carrier_ID=s.Carrier_ID
-
 LEFT JOIN transportation_costs t
     ON s.Shipment_ID=t.Shipment_ID
 
@@ -1511,6 +1535,7 @@ CALL sp_carrier_cost_analysis();
 ## Procedure 8: Executive KPI Dashboard Procedure
 
 ### PROCEDURE:
+
 ### sp_executive_dashboard
 
 ```
@@ -1543,7 +1568,6 @@ DELIMITER ;
 
 CALL sp_executive_dashboard();
 ```
-
 <img width="470" height="85" alt="image" src="https://github.com/user-attachments/assets/be02154a-c394-4179-abd2-3f8800eb7705" />
 
 
