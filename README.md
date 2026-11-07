@@ -181,9 +181,10 @@ Differentiate high-volume customers from high-cost customers to improve commerci
 
 # 01_database_setup.sql
 
-DESCRIPTION:
+## DESCRIPTION:
 
-Creates the project database and initializes environment.
+### Creates the project database and initializes environment.
+
 ```
 DROP DATABASE IF EXISTS SwiftRoutelog;
 
@@ -196,9 +197,9 @@ USE SwiftRoutelog;
 
 # 02_table_creation.sql
 
-DESCRIPTION:
+## DESCRIPTION:
 
-Creates all core business entities
+### Creates all core business entities
 
 #### Customers 
 
