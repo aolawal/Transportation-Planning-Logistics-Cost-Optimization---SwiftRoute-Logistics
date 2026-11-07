@@ -1070,7 +1070,7 @@ WHERE Shipment_ID = 'S010';
 #### DELETE
 ```
 DELETE FROM customers
-WHERE Customer_ID = 12;
+WHERE Customer_ID = 11;
 ```
 
 /*
@@ -1083,6 +1083,14 @@ Failure to do so may modify or delete
 every record in the table.
 */
 
+-- Crosschecking and confirming if the record was actually deleted by SQL engine
+
+```
+SELECT *
+FROM customers;
+```
+
+<img width="630" height="240" alt="image" src="https://github.com/user-attachments/assets/a0fd30c7-6262-4452-b965-126fd1eb8ef3" />
 
 
 
