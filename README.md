@@ -1086,6 +1086,8 @@ SELECT
     ROUND(AVG(Other_Cost * 100.0 / NULLIF(Total_Transport_Cost, 0)), 2) AS Avg_Other_Percent
 FROM transportation_costs;
 ```
+<img width="746" height="77" alt="image" src="https://github.com/user-attachments/assets/155dfc7f-b193-46d8-a2d9-5021f626b878" />
+
 
 # 13_data_modification
 
@@ -1164,7 +1166,6 @@ SELECT
 FROM shipments
 GROUP BY Carrier_ID;
 ```
-<img width="587" height="154" alt="image" src="https://github.com/user-attachments/assets/a00d838c-8727-4997-93a7-a9cd52380d33" />
 
 
 ### vw_customer_spending
@@ -1184,7 +1185,6 @@ GROUP BY
     c.Customer_ID,
     c.Customer_Name;
 ```
-<img width="592" height="236" alt="image" src="https://github.com/user-attachments/assets/a956e99d-49f5-491c-ba25-430c29388567" />
 
 
 ### vw_route_cost_analysis
@@ -1206,8 +1206,6 @@ GROUP BY
     r.Origin,
     r.Destination;
 ```
-<img width="610" height="239" alt="image" src="https://github.com/user-attachments/assets/b4fcfe15-097d-4e9c-ae7c-91c0e8c4b356" />
-
 
 # 15_stored_procedures.sql
  
