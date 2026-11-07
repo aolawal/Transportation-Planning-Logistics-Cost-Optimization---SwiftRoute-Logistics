@@ -178,10 +178,6 @@ Differentiate high-volume customers from high-cost customers to improve commerci
 - **13_data_modification.sql**
 - **14_views_kpis.sql**
 - **15_stored_procedures.sql**
-- **16_indexes.sql**
-- **17_triggers.sql**
-- **18_kpi_dashboard_queries.sql**
-- **19_data_dictionary.sql**
 
 **01_database_setup.sql**
 DESCRIPTION:
@@ -1092,5 +1088,463 @@ FROM customers;
 
 <img width="630" height="240" alt="image" src="https://github.com/user-attachments/assets/a0fd30c7-6262-4452-b965-126fd1eb8ef3" />
 
+
+
+**14_views_kpis.sql**
+DESCRIPTION:
+Reusable analytics views
+
+```
+CREATE VIEW vw_carrier_performance AS
+SELECT
+    Carrier_ID,
+    COUNT(*) Total_Shipments
+FROM shipments
+GROUP BY Carrier_ID;
+```
+<img width="587" height="154" alt="image" src="https://github.com/user-attachments/assets/a00d838c-8727-4997-93a7-a9cd52380d33" />
+
+```
+CREATE VIEW vw_customer_spending AS
+SELECT
+    c.Customer_ID,
+    c.Customer_Name,
+    SUM(t.Total_Transport_Cost) Total_Spending
+FROM customers c
+JOIN shipments s
+    ON c.Customer_ID = s.Customer_ID
+JOIN transportation_costs t
+    ON s.Shipment_ID = t.Shipment_ID
+GROUP BY
+    c.Customer_ID,
+    c.Customer_Name;
+```
+<img width="592" height="236" alt="image" src="https://github.com/user-attachments/assets/a956e99d-49f5-491c-ba25-430c29388567" />
+
+```
+CREATE VIEW vw_route_cost_analysis AS
+SELECT
+    r.Route_ID,
+    r.Origin,
+    r.Destination,
+    AVG(t.Total_Transport_Cost) Avg_Transport_Cost
+FROM routes r
+JOIN shipments s
+    ON r.Route_ID = s.Route_ID
+JOIN transportation_costs t
+    ON s.Shipment_ID = t.Shipment_ID
+GROUP BY
+    r.Route_ID,
+    r.Origin,
+    r.Destination;
+```
+<img width="610" height="239" alt="image" src="https://github.com/user-attachments/assets/b4fcfe15-097d-4e9c-ae7c-91c0e8c4b356" />
+
+
+ **15_stored_procedures.sql**
+ 
+DESCRIPTION:
+Reusable business procedures for reporting and operational management.
+
+## Procedure 1: Get Carrier Performance
+### PROCEDURE:
+### sp_carrier_performance
+
+### PURPOSE:
+Returns shipment volume, delayed shipments and on-time delivery percentage by carrier.
+
+```
+DELIMITER $$
+
+CREATE PROCEDURE sp_carrier_performance()
+BEGIN
+
+    SELECT
+        c.Carrier_ID,
+        c.Carrier_Name,
+
+        COUNT(s.Shipment_ID) AS Total_Shipments,
+
+        SUM(
+            CASE
+                WHEN s.Actual_Delivery_Date >
+                     s.Expected_Delivery_Date
+                OR (
+                    s.Actual_Delivery_Date IS NULL
+                    AND s.Shipment_Status = 'Delayed'
+                )
+                THEN 1
+                ELSE 0
+            END
+        ) AS Delayed_Shipments,
+
+        ROUND(
+            SUM(
+                CASE
+                    WHEN s.Actual_Delivery_Date <=
+                         s.Expected_Delivery_Date
+                    THEN 1
+                    ELSE 0
+                END
+            ) * 100.0 /
+            NULLIF(COUNT(s.Shipment_ID),0),
+        2) AS On_Time_Delivery_Percentage
+
+    FROM carriers c
+    LEFT JOIN shipments s
+        ON c.Carrier_ID = s.Carrier_ID
+
+    GROUP BY
+        c.Carrier_ID,
+        c.Carrier_Name;
+
+END$$
+
+DELIMITER ;
+
+CALL sp_carrier_performance();
+```
+<img width="578" height="166" alt="image" src="https://github.com/user-attachments/assets/0a718617-4bea-4876-93b2-5642a638f45e" />
+
+## Procedure 2: Customer Logistics Spend
+### PROCEDURE:
+### sp_customer_spend
+
+DELIMITER $$
+
+CREATE PROCEDURE sp_customer_spend()
+BEGIN
+
+SELECT
+
+    c.Customer_ID,
+    c.Customer_Name,
+
+    COUNT(s.Shipment_ID) AS Total_Shipments,
+
+    ROUND(
+        SUM(t.Total_Transport_Cost),
+        2
+    ) AS Total_Logistics_Spend,
+
+    ROUND(
+        AVG(t.Total_Transport_Cost),
+        2
+    ) AS Average_Logistics_Spend
+
+FROM customers c
+
+LEFT JOIN shipments s
+    ON c.Customer_ID=s.Customer_ID
+
+LEFT JOIN transportation_costs t
+    ON s.Shipment_ID=t.Shipment_ID
+
+GROUP BY
+    c.Customer_ID,
+    c.Customer_Name
+
+ORDER BY
+    Total_Logistics_Spend DESC;
+
+END$$
+
+DELIMITER ;
+
+CALL sp_customer_spend();
+
+```
+<img width="584" height="218" alt="image" src="https://github.com/user-attachments/assets/61f19998-f2e6-48a4-839e-9c3d1da9e855" />
+
+## Procedure 3: Route Cost Analysis
+
+### PROCEDURE:
+### sp_route_cost_analysis
+
+DELIMITER $$
+
+```
+CREATE PROCEDURE sp_route_cost_analysis()
+BEGIN
+
+SELECT
+
+    r.Route_ID,
+    r.Origin,
+    r.Destination,
+
+    COUNT(s.Shipment_ID) AS Shipment_Count,
+
+    ROUND(
+        AVG(t.Total_Transport_Cost),
+        2
+    ) AS Avg_Shipment_Cost,
+
+    ROUND(
+        SUM(t.Total_Transport_Cost),
+        2
+    ) AS Total_Route_Cost
+
+FROM routes r
+
+LEFT JOIN shipments s
+    ON r.Route_ID=s.Route_ID
+
+LEFT JOIN transportation_costs t
+    ON s.Shipment_ID=t.Shipment_ID
+
+GROUP BY
+    r.Route_ID,
+    r.Origin,
+    r.Destination
+
+ORDER BY
+    Total_Route_Cost DESC;
+
+END$$
+
+DELIMITER ;
+
+CALL sp_route_cost_analysis();
+```
+<img width="595" height="230" alt="image" src="https://github.com/user-attachments/assets/2591f248-6b26-4dad-9d59-225c2899efef" />
+
+
+## Procedure 4: Delayed Shipments
+PROCEDURE:
+sp_delayed_shipments
+
+```
+DELIMITER $$
+
+CREATE PROCEDURE sp_delayed_shipments()
+BEGIN
+
+SELECT *
+
+FROM shipments
+
+WHERE
+
+(
+Actual_Delivery_Date > Expected_Delivery_Date
+
+OR
+
+(
+Actual_Delivery_Date IS NULL
+AND Shipment_Status='Delayed'
+)
+
+);
+
+END$$
+
+DELIMITER ;
+
+CALL sp_delayed_shipments();
+```
+<img width="989" height="326" alt="image" src="https://github.com/user-attachments/assets/0239cb68-064a-4be7-9eb4-64c31628854d" />
+
+## Procedure 5: Shipment Lookup
+
+### PROCEDURE:
+### sp_shipment_lookup
+
+PURPOSE:
+Returns a complete shipment report for a given shipment ID.
+
+```
+DELIMITER $$
+
+CREATE PROCEDURE sp_shipment_lookup
+(
+IN p_shipment_id VARCHAR(20)
+)
+
+BEGIN
+
+SELECT
+
+    s.Shipment_ID,
+    c.Customer_Name,
+    ca.Carrier_Name,
+    v.Vehicle_Type,
+    r.Origin,
+    r.Destination,
+    s.Shipment_Date,
+    s.Expected_Delivery_Date,
+    s.Actual_Delivery_Date,
+    s.Shipment_Status
+
+FROM shipments s
+
+JOIN customers c
+ON s.Customer_ID=c.Customer_ID
+
+JOIN carriers ca
+ON s.Carrier_ID=ca.Carrier_ID
+
+JOIN vehicles v
+ON s.Vehicle_ID=v.Vehicle_ID
+
+JOIN routes r
+ON s.Route_ID=r.Route_ID
+
+WHERE s.Shipment_ID = p_shipment_id;
+
+END$$
+
+DELIMITER ;
+
+CALL sp_shipment_lookup('S025');
+```
+<img width="967" height="60" alt="image" src="https://github.com/user-attachments/assets/ed4d4abb-8059-4dd8-adfa-a69ad9b860f3" />
+
+
+## Procedure 6: Top Spending Customers
+### Parameterized procedure
+
+```
+DELIMITER $$
+
+CREATE PROCEDURE sp_top_customers
+(
+IN p_top_n INT
+)
+
+BEGIN
+
+SELECT
+
+    c.Customer_ID,
+    c.Customer_Name,
+
+    ROUND(
+        SUM(t.Total_Transport_Cost),
+        2
+    ) AS Total_Spend
+
+FROM customers c
+
+JOIN shipments s
+ON c.Customer_ID=s.Customer_ID
+
+JOIN transportation_costs t
+ON s.Shipment_ID=t.Shipment_ID
+
+GROUP BY
+    c.Customer_ID,
+    c.Customer_Name
+
+ORDER BY
+    Total_Spend DESC
+
+LIMIT p_top_n;
+
+END$$
+
+DELIMITER ;
+
+CALL sp_top_customers(5);
+```
+<img width="380" height="134" alt="image" src="https://github.com/user-attachments/assets/65fec35a-0ce2-403c-8f4c-bdd6ee8c30b4" />
+
+
+## Procedure 7: Carrier Spend Analysis
+
+### PROCEDURE:
+### sp_carrier_cost_analysis
+
+```
+DELIMITER $$
+
+CREATE PROCEDURE sp_carrier_cost_analysis()
+BEGIN
+
+SELECT
+
+    c.Carrier_ID,
+    c.Carrier_Name,
+
+    COUNT(s.Shipment_ID) AS Shipment_Count,
+
+    ROUND(
+        SUM(t.Total_Transport_Cost),
+        2
+    ) AS Total_Spend,
+
+    ROUND(
+        AVG(t.Total_Transport_Cost),
+        2
+    ) AS Avg_Spend
+
+FROM carriers c
+
+LEFT JOIN shipments s
+    ON c.Carrier_ID=s.Carrier_ID
+
+LEFT JOIN transportation_costs t
+    ON s.Shipment_ID=t.Shipment_ID
+
+GROUP BY
+    c.Carrier_ID,
+    c.Carrier_Name
+
+ORDER BY
+    Total_Spend DESC;
+
+END$$
+
+DELIMITER ;
+    
+CALL sp_carrier_cost_analysis();
+```
+<img width="430" height="147" alt="image" src="https://github.com/user-attachments/assets/7555f3b9-4787-4e1d-95c1-58f18a03c49a" />
+
+## Procedure 8: Executive KPI Dashboard Procedure
+
+### PROCEDURE:
+### sp_executive_dashboard
+
+```
+DROP PROCEDURE IF EXISTS sp_executive_dashboard;
+
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS sp_executive_dashboard;
+
+DELIMITER $$
+
+CREATE PROCEDURE sp_executive_dashboard()
+BEGIN
+
+    SELECT
+        COUNT(*) AS Total_Shipments,
+        SUM(CASE WHEN Shipment_Status = 'Delivered' THEN 1 ELSE 0 END) AS Delivered,
+        SUM(CASE WHEN Shipment_Status = 'Cancelled' THEN 1 ELSE 0 END) AS Cancelled,
+        SUM(CASE WHEN Shipment_Status = 'Delayed'   THEN 1 ELSE 0 END) AS Delayed_Shipments,
+        ROUND(
+            100.0 * SUM(CASE WHEN Shipment_Status = 'Delivered' THEN 1 ELSE 0 END)
+            / COUNT(*),
+            2
+        ) AS Delivery_Rate
+    FROM shipments;
+
+END$$
+
+DELIMITER ;
+
+CALL sp_executive_dashboard();
+```
+
+<img width="470" height="85" alt="image" src="https://github.com/user-attachments/assets/be02154a-c394-4179-abd2-3f8800eb7705" />
+
+
+
+
+
+
+-
 
 
