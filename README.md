@@ -649,5 +649,440 @@ ON s.Carrier_ID = c.Carrier_ID
 GROUP BY Carrier_ID
 ORDER BY Shipment_Count DESC;
 ```
+<img width="374" height="148" alt="image" src="https://github.com/user-attachments/assets/95ec9fc1-b655-4290-8641-83672e163e5a" />
+
+
+### Transportation spend summary
+```
+SELECT
+SUM(Total_Transport_Cost) AS Total_Logistics_Expenditure,
+AVG(Total_Transport_Cost) AS Average_Cost,
+MIN(Total_Transport_Cost) AS Min_Cost,
+MAX(Total_Transport_Cost) AS Max_Cost
+FROM transportation_costs;
+```
+<img width="404" height="66" alt="image" src="https://github.com/user-attachments/assets/4f74d7f7-3b25-4a2b-9392-91a17cd92cb2" />
+
+
+**08_join_analysis.sql**
+DESCRIPTION:
+Cross-table business reporting
+
+```
+SELECT
+s.Shipment_ID,
+c.Customer_Name,
+ca.Carrier_Name,
+v.Vehicle_Type,
+r.Origin,
+r.Destination,
+s.Shipment_Status
+FROM shipments s
+JOIN customers c
+ON s.Customer_ID = c.Customer_ID
+JOIN carriers ca
+ON s.Carrier_ID = ca.Carrier_ID
+JOIN vehicles v
+ON s.Vehicle_ID = v.Vehicle_ID
+JOIN routes r
+ON s.Route_ID = r.Route_ID;
+```
+<img width="661" height="215" alt="image" src="https://github.com/user-attachments/assets/c5509b24-1de6-4fe5-979e-45dcb4541f67" />
+
+**09_delivery_performance.sql**
+
+DESCRIPTION:
+Delivery KPI calculations
+
+```
+WITH Delivery_Status AS
+(
+    SELECT
+        s.Shipment_ID,
+        s.Carrier_ID,
+        c.Carrier_Name,
+        CASE
+            WHEN Actual_Delivery_Date <= Expected_Delivery_Date
+            THEN 'On Time'
+            ELSE 'Late'
+        END AS Delivery_Status
+    FROM shipments s
+    LEFT JOIN carriers c
+	ON s.Carrier_ID = c.Carrier_ID
+    WHERE Actual_Delivery_Date IS NOT NULL
+)
+
+SELECT
+    Carrier_ID, 
+    Carrier_Name,
+    COUNT(*) Total_Deliveries
+FROM Delivery_Status
+GROUP BY Carrier_ID;
+```
+<img width="344" height="157" alt="image" src="https://github.com/user-attachments/assets/77be9707-023e-4763-b47c-976b1ee41099" />
+
+
+**10_cte_subqueries.sql**
+DESCRIPTION:
+Advanced SQL using subqueries and CTEs
+
+```
+# Above average shipment cost
+
+SELECT *
+FROM transportation_costs
+WHERE Total_Transport_Cost >
+(
+    SELECT AVG(Total_Transport_Cost)
+    FROM transportation_costs
+);
+```
+<img width="752" height="376" alt="image" src="https://github.com/user-attachments/assets/02ba7724-21ad-4fd1-9c93-851d7945b393" />
+
+
+```
+-- High-cost routes
+
+WITH Route_Costs AS
+(
+    SELECT
+        r.Route_ID,
+        AVG(t.Total_Transport_Cost) Avg_Cost
+    FROM routes r
+    JOIN shipments s
+        ON r.Route_ID = s.Route_ID
+    JOIN transportation_costs t
+        ON s.Shipment_ID = t.Shipment_ID
+    GROUP BY r.Route_ID
+)
+SELECT *
+FROM Route_Costs;
+```
+<img width="350" height="229" alt="image" src="https://github.com/user-attachments/assets/33d0368c-12de-43db-97a4-8b38586154e6" />
+
+
+ **11_window_functions.sql**
+DESCRIPTION:
+Ranking and cumulative analysis
+```
+-- Carrier ranking
+
+SELECT
+    s.Carrier_ID,
+	c.Carrier_Name,
+    SUM(t.Total_Transport_Cost) Total_Cost,
+    RANK() OVER
+    (
+        ORDER BY SUM(t.Total_Transport_Cost) DESC
+    ) AS Carrier_Rank
+FROM shipments s
+JOIN transportation_costs t
+ON s.Shipment_ID = t.Shipment_ID
+LEFT JOIN carriers c
+ON s.Carrier_ID = c.Carrier_ID
+GROUP BY s.Carrier_ID;
+```
+<img width="374" height="143" alt="image" src="https://github.com/user-attachments/assets/b8d7059d-6908-4065-8bca-a99b31f2527a" />
+
+```
+-- Running transportation spend
+
+SELECT
+    Shipment_Date,
+    SUM(Total_Transport_Cost)
+        OVER
+        (
+            ORDER BY Shipment_Date
+        ) AS Running_Total
+FROM shipments s
+JOIN transportation_costs t
+ON s.Shipment_ID = t.Shipment_ID;
+```
+<img width="410" height="359" alt="image" src="https://github.com/user-attachments/assets/494ed919-bce7-4799-8787-dffc1bbabc38" />
+
+
+**12_business_questions.sql**
+
+## DESCRIPTION:
+## Executive-level business analysis
+
+-- Which carrier handles most shipments?
+-- Highest transportation spend?
+-- Most delayed carrier?
+-- Most delayed route?
+-- Highest spending customers?
+-- Transportation spend trend?
+-- Cost reduction opportunities?
+
+### 1.	Which carriers handle the most shipments?
+```
+SELECT s.Carrier_ID, 
+c.Carrier_Name, 
+COUNT(s.Shipment_ID) Shipment_Count
+FROM shipments s
+LEFT JOIN carriers c
+ON s.Carrier_ID = c.Carrier_ID
+GROUP BY Carrier_ID
+ORDER BY COUNT(Shipment_ID) DESC;
+```
+<img width="374" height="131" alt="image" src="https://github.com/user-attachments/assets/1915faf4-52fc-4b3f-8a90-a1e9d7930deb" />
+
+### 2.	Which carriers generate the highest transportation costs?
+```
+SELECT c.Carrier_ID,
+c.Carrier_Name, 
+SUM(t.Total_Transport_Cost) Total_Transport_Cost
+FROM carriers c
+LEFT JOIN shipments s
+ON c.Carrier_ID = s.Carrier_ID
+LEFT JOIN transportation_costs t
+ON t.Shipment_ID = s.Shipment_ID
+GROUP BY Carrier_ID
+ORDER BY Total_Transport_Cost DESC;
+```
+<img width="355" height="141" alt="image" src="https://github.com/user-attachments/assets/23feb600-e573-4887-ad6f-1fa744e6ffc4" />
+
+### 3.	Which carriers have the highest number of delayed shipments?
+-- N.B: Delayed shipment with Null Actual Delivery Date included i.e. not yet delivered shipment)
+```
+SELECT s.Carrier_ID, 
+c.Carrier_Name,
+COUNT(*) Count_of_Delayed_Shipment
+FROM shipments s
+LEFT JOIN carriers c
+ON s.Carrier_ID = c.Carrier_ID
+WHERE(
+Actual_Delivery_Date > Expected_Delivery_Date
+OR (Actual_Delivery_Date IS NULL
+AND Shipment_Status = 'Delayed')
+)
+GROUP BY Carrier_ID
+ORDER BY COUNT(*) DESC;
+```
+<img width="383" height="136" alt="image" src="https://github.com/user-attachments/assets/7f1ebfdc-d910-460f-9f40-d6a0fe1fb5d6" />
+
+### 4. Which routes experience recurring delivery delays?
+```
+SELECT 
+r.Route_ID, 
+r.Origin, 
+r.Destination,
+COUNT(*) AS Delayed_Shipments
+FROM shipments s
+JOIN routes r
+ON s.Route_ID = r.Route_ID
+WHERE Shipment_Status = 'Delayed'
+   OR Actual_Delivery_Date > Expected_Delivery_Date
+GROUP BY r.Route_ID, r.Origin, r.Destination
+ORDER BY Delayed_Shipments DESC;
+```
+<img width="376" height="192" alt="image" src="https://github.com/user-attachments/assets/8eda07e3-3a32-4814-aedd-4137c3ecd80e" />
+
+### 5. Which routes have unusually high costs per kilometer?
+```
+SELECT r.Origin, r.Destination, r.Distance_Km,
+SUM(t.Total_Transport_Cost) AS Total_Cost,
+ROUND(SUM(t.Total_Transport_Cost) /
+NULLIF(r.Distance_KM * COUNT(DISTINCT s.Shipment_ID), 0),2
+       ) AS Cost_Per_KM
+FROM routes r
+LEFT JOIN shipments s
+ON s.Route_ID = r.Route_ID
+LEFT JOIN transportation_costs t
+ON t.Shipment_ID = s.Shipment_ID
+GROUP BY r.Origin, r.Destination, r.Distance_KM
+ORDER BY Cost_Per_KM DESC;
+```
+
+<img width="428" height="241" alt="image" src="https://github.com/user-attachments/assets/252420c5-19d5-4904-9d82-29f2dd20569c" />
+
+
+### -- 6. Which customers generate the highest logistics spending?
+
+#### Total Logistics Spending
+```
+SELECT c.Customer_ID, c.Customer_Name, SUM(t.Total_Transport_Cost) High_Logistics_Spending
+FROM customers c
+LEFT JOIN shipments s
+ON c.Customer_ID = s.Customer_ID
+LEFT JOIN transportation_costs t
+ON s.Shipment_ID = t.Shipment_ID
+GROUP BY c.Customer_ID
+ORDER BY SUM(t.Total_Transport_Cost) DESC;
+```
+<img width="379" height="265" alt="image" src="https://github.com/user-attachments/assets/b80a30a3-9b73-4ada-9ecb-9f424c867fe1" />
+
+#### Average Logistics Spending
+```
+SELECT c.Customer_ID, c.Customer_Name, ROUND(AVG(t.Total_Transport_Cost),2) AVG_Logistics_Spending
+FROM customers c
+LEFT JOIN shipments s
+ON c.Customer_ID = s.Customer_ID
+LEFT JOIN transportation_costs t
+ON s.Shipment_ID = t.Shipment_ID
+GROUP BY c.Customer_ID
+ORDER BY AVG(t.Total_Transport_Cost) DESC;
+```
+<img width="368" height="259" alt="image" src="https://github.com/user-attachments/assets/5e84d145-be51-4a3a-ad9e-bdd0a0725b36" />
+
+### 7.	What are the most common causes of transportation delays? 
+-- (some issues were multiple under event type but didn't result in delay)
+-- e.g vehicle breakdown more than ONCE but only 1 resulted in delayed shipment
+```
+SELECT d.Event_Type, COUNT(d.Event_Type) Count_of_Delays
+FROM delivery_events d
+JOIN shipments s
+ON d.Shipment_ID = s.Shipment_ID
+WHERE(
+s.Actual_Delivery_Date > s.Expected_Delivery_Date
+OR (s.Actual_Delivery_Date IS NULL
+AND s.Shipment_Status = 'Delayed')
+)
+GROUP BY d.Event_Type
+ORDER BY COUNT(d.Event_Type) DESC;
+```
+
+<img width="369" height="139" alt="image" src="https://github.com/user-attachments/assets/2f2620b7-43fe-4e70-b9b0-718c87c2875f" />
+
+### 8.	How has transportation spending changed over time?
+
+#### Overall % change in Total Expenditure over the period
+```
+WITH Expenditure AS (
+    SELECT
+        s.Shipment_Date,
+        t.Total_Transport_Cost,
+        SUM(t.Total_Transport_Cost) OVER (
+            ORDER BY s.Shipment_Date
+        ) AS Cumulative_Expenditure
+    FROM shipments s
+    LEFT JOIN transportation_costs t
+        ON s.Shipment_ID = t.Shipment_ID)
+SELECT *, ROUND(
+        (Cumulative_Expenditure -
+         LAG(Cumulative_Expenditure) OVER (ORDER BY Shipment_Date))
+        * 100.0 /
+        NULLIF(LAG(Cumulative_Expenditure) OVER (ORDER BY Shipment_Date), 0),
+        2
+    ) AS Percentage_Increase
+FROM Expenditure
+ORDER BY Shipment_Date;
+```
+<img width="517" height="265" alt="image" src="https://github.com/user-attachments/assets/2c57ff92-a384-4420-b8b6-464c50469f92" />
+
+#### % in Expenditure over the period by Customer_ID
+```
+WITH Expenditure AS (
+    SELECT
+        s.Customer_ID,
+        s.Shipment_Date,
+        t.Total_Transport_Cost,
+        SUM(t.Total_Transport_Cost) OVER (
+            PARTITION BY s.Customer_ID
+            ORDER BY s.Shipment_Date
+        ) AS Cumulative_Expenditure
+    FROM shipments s
+    LEFT JOIN transportation_costs t
+        ON s.Shipment_ID = t.Shipment_ID
+)
+SELECT *,
+    ROUND(
+        (Cumulative_Expenditure -
+         LAG(Cumulative_Expenditure) OVER (
+             PARTITION BY Customer_ID
+             ORDER BY Shipment_Date
+         )) * 100.0 /
+        NULLIF(
+            LAG(Cumulative_Expenditure) OVER (
+                PARTITION BY Customer_ID
+                ORDER BY Shipment_Date
+            ), 0
+        ), 2
+    ) AS Percentage_Increase
+FROM Expenditure
+ORDER BY Customer_ID, Shipment_Date;
+```
+<img width="605" height="282" alt="image" src="https://github.com/user-attachments/assets/7ad392b7-eea9-4798-aea8-409e3aa26771" />
+
+# 9.	Where should management investigate opportunities to reduce logistics costs? DRIVER AND FUEL COST
+
+#### Analysis of % Breakdown of Transport Cost per shipment
+
+```
+SELECT
+    Cost_ID,
+    Shipment_ID,
+    ROUND(Fuel_Cost * 100.0 / NULLIF(Total_Transport_Cost, 0), 2) AS Fuel_Cost_Percent,
+    ROUND(Driver_Cost * 100.0 / NULLIF(Total_Transport_Cost, 0), 2) AS Driver_Cost_Percent,
+    ROUND(Toll_Cost * 100.0 / NULLIF(Total_Transport_Cost, 0), 2) AS Toll_Cost_Percent,
+    ROUND(Carrier_Fee * 100.0 / NULLIF(Total_Transport_Cost, 0), 2) AS Carrier_Fee_Percent,
+    ROUND(Maintenance_Cost * 100.0 / NULLIF(Total_Transport_Cost, 0), 2) AS Maintenance_Cost_Percent,
+    ROUND(Other_Cost * 100.0 / NULLIF(Total_Transport_Cost, 0), 2) AS Other_Cost_Percent
+FROM transportation_costs;
+```
+<img width="893" height="272" alt="image" src="https://github.com/user-attachments/assets/3733ec33-bad2-4b8d-83df-887d0c90781d" />
+
+#### Analysis of Total Transport Cost in Percentage 
+```
+SELECT
+    ROUND(AVG(Fuel_Cost * 100.0 / NULLIF(Total_Transport_Cost, 0)), 2) AS Avg_Fuel_Percent,
+    ROUND(AVG(Driver_Cost * 100.0 / NULLIF(Total_Transport_Cost, 0)), 2) AS Avg_Driver_Percent,
+    ROUND(AVG(Toll_Cost * 100.0 / NULLIF(Total_Transport_Cost, 0)), 2) AS Avg_Toll_Percent,
+    ROUND(AVG(Carrier_Fee * 100.0 / NULLIF(Total_Transport_Cost, 0)), 2) AS Avg_Carrier_Percent,
+    ROUND(AVG(Maintenance_Cost * 100.0 / NULLIF(Total_Transport_Cost, 0)), 2) AS Avg_Maintenance_Percent,
+    ROUND(AVG(Other_Cost * 100.0 / NULLIF(Total_Transport_Cost, 0)), 2) AS Avg_Other_Percent
+FROM transportation_costs;
+```
+
+
+DESCRIPTION:
+INSERT, UPDATE, DELETE examples
+
+#### INSERT
+
+```
+INSERT INTO customers
+VALUES
+(
+11,
+'Zara',
+'Standard',
+'Arteixo',
+'A Coruna',
+'Spain'
+);
+```
+-- Crosschecking and confirming if records were actually inserted by SQL engine
+
+```
+SELECT *
+FROM customers;
+```
+<img width="625" height="250" alt="image" src="https://github.com/user-attachments/assets/dde2dced-a494-49bc-ad2a-35c5dc4747d8" />
+
+#### UPDATE
+```
+UPDATE shipments
+SET Shipment_Status = 'Delivered'
+WHERE Shipment_ID = 'S010';
+```
+
+#### DELETE
+```
+DELETE FROM customers
+WHERE Customer_ID = 12;
+```
+
+/*
+IMPORTANT
+
+Always use WHERE clauses
+when executing UPDATE and DELETE statements.
+
+Failure to do so may modify or delete
+every record in the table.
+*/
+
+
 
 
