@@ -683,7 +683,7 @@ FROM transportation_costs;
 <img width="404" height="66" alt="image" src="https://github.com/user-attachments/assets/4f74d7f7-3b25-4a2b-9392-91a17cd92cb2" />
 
 
-**08_join_analysis.sql**
+# 08_join_analysis.sql
 
 ### DESCRIPTION:
 
@@ -747,7 +747,7 @@ GROUP BY Carrier_ID;
 
 
 
-**10_cte_subqueries.sql**
+# 10_cte_subqueries.sql
 
 ### DESCRIPTION:
 
@@ -1054,7 +1054,7 @@ ORDER BY Customer_ID, Shipment_Date;
 <img width="605" height="282" alt="image" src="https://github.com/user-attachments/assets/7ad392b7-eea9-4798-aea8-409e3aa26771" />
 
 
-# 9.	Where should management investigate opportunities to reduce logistics costs? DRIVER AND FUEL COST
+### 9.	Where should management investigate opportunities to reduce logistics costs? DRIVER AND FUEL COST
 
 #### Analysis of % Breakdown of Transport Cost per shipment
 
